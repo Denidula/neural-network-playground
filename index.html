@@ -30,6 +30,7 @@
 
   <!-- ===== 読み出しストリップ ===== -->
   <div class="readout-bar" data-screen-label="読み出しストリップ">
+    <div class="readouts">
     <div class="readout">
       <span class="readout-label microlabel">
         Epoch
@@ -67,12 +68,10 @@
       <span class="readout-label microlabel">構成</span>
       <span class="readout-value" id="stat-arch">2 · 4 · 4 · 1</span>
     </div>
-  </div>
+    </div><!-- /.readouts -->
 
-  <!-- ===== メインレイアウト ===== -->
-  <main class="app-main">
-
-    <!-- トランスポート (リセット / 1ステップ / 再生) — 決定境界カラムの真上に固定 -->
+    <!-- トランスポート (リセット / 1ステップ / 再生)
+         メイングリッドと同じカラム定義の第3カラム = 決定境界の真上に左右固定 -->
     <div class="transport" data-screen-label="トランスポート">
       <button id="btn-reset" class="btn btn-ghost" title="ネットワークをリセット">
         <span class="btn-icon" aria-hidden="true">↺</span>
@@ -88,6 +87,10 @@
         <span class="btn-text">再生</span>
       </button>
     </div>
+  </div>
+
+  <!-- ===== メインレイアウト ===== -->
+  <main class="app-main">
 
     <!-- 左レール: 設定 -->
     <aside class="control-panel panel" data-screen-label="設定レール">
