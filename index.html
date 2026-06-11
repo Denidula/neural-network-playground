@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neural Network Playground</title>
+
+  <!-- Google Fonts: IBM Plex Mono + IBM Plex Sans JP -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== ヘッダー: ブランド + トランスポート ===== -->
+  <header class="app-header" data-screen-label="ヘッダー">
+    <div class="header-inner">
+      <span class="brand-dots" aria-hidden="true">
+        <span class="brand-dot brand-dot--blue"></span>
+        <span class="brand-dot brand-dot--orange"></span>
+      </span>
+      <h1 class="app-title">Neural Network Playground</h1>
+    </div>
+
+    <div class="transport">
+      <button id="btn-reset" class="btn btn-ghost" title="ネットワークをリセット">
+        <span class="btn-icon" aria-hidden="true">↺</span>
+        <span class="btn-text">リセット</span>
+      </button>
+      <button id="btn-step" class="btn btn-ghost" title="1エポックだけ進む">
+        <span class="btn-icon" aria-hidden="true">⏭</span>
+        <span class="btn-text">1ステップ</span>
+      </button>
+      <button id="btn-playpause" class="btn btn-primary" title="再生 / 一時停止">
+        <span class="run-dot" aria-hidden="true"></span>
+        <span class="btn-icon" aria-hidden="true">▶</span>
+        <span class="btn-text">再生</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ===== 読み出しストリップ ===== -->
+  <div class="readout-bar" data-screen-label="読み出しストリップ">
+    <div class="readout">
+      <span class="readout-label microlabel">
+        Epoch
+        <span class="help" tabindex="0" role="note" aria-label="エポックの説明">
+          <span class="help-icon" aria-hidden="true">?</span>
+          <span class="help-bubble help-bubble--right">学習データ全体を何周したか。</span>
+        </span>
+      </span>
+      <span class="readout-value" id="stat-epoch">0</span>
+    </div>
+
+    <div class="readout">
+      <span class="readout-label microlabel">
+        学習損失
+        <span class="help" tabindex="0" role="note" aria-label="学習損失の説明">
+          <span class="help-icon" aria-hidden="true">?</span>
+          <span class="help-bubble">予測と正解のズレの大きさ。0に近いほど正確です。</span>
+        </span>
+      </span>
+      <span class="readout-value is-empty" id="stat-train-loss">—</span>
+    </div>
+
+    <div class="readout">
+      <span class="readout-label microlabel">
+        テスト損失
+        <span class="help" tabindex="0" role="note" aria-label="テスト損失の説明">
+          <span class="help-icon" aria-hidden="true">?</span>
+          <span class="help-bubble">学習に使っていないデータでの損失。学習損失だけ下がってこれが高いままなら過学習のサインです。</span>
+        </span>
+      </span>
+      <span class="readout-value is-empty" id="stat-test-loss">—</span>
+    </div>
+
+    <div class="readout readout--arch">
+      <span class="readout-label microlabel">構成</span>
+      <span class="readout-value" id="stat-arch">2 · 4 · 4 · 1</span>
+    </div>
+  </div>
+
+  <!-- ===== メインレイアウト ===== -->
+  <main class="app-main">
+
+    <!-- 左レール: 設定 -->
+    <aside class="control-panel panel" data-screen-label="設定レール">
+
+      <!-- データセット選択 -->
+      <section class="control-section">
+        <h2 class="section-label">
+          <span class="section-index">01</span>
+          データセット
+          <span class="help" tabindex="0" role="note" aria-label="データセットの説明">
+            <span class="help-icon" aria-hidden="true">?</span>
+            <span class="help-bubble help-bubble--right">分類問題の形。ガウスが最も簡単で、渦巻きが最難関です。</span>
+          </span>
+        </h2>
+        <div class="dataset-grid" id="dataset-grid">
+          <button class="dataset-btn" data-dataset="circle">
+            <canvas class="dataset-thumb" data-thumb="circle" aria-hidden="true"></canvas>
+            <span>2つの円</span>
+          </button>
+          <button class="dataset-btn is-active" data-dataset="xor">
+            <canvas class="dataset-thumb" data-thumb="xor" aria-hidden="true"></canvas>
+            <span>XOR</span>
+          </button>
+          <button class="dataset-btn" data-dataset="spiral">
+            <canvas class="dataset-thumb" data-thumb="spiral" aria-hidden="true"></canvas>
+            <span>渦巻き</span>
+          </button>
+          <button class="dataset-btn" data-dataset="gauss">
+            <canvas class="dataset-thumb" data-thumb="gauss" aria-hidden="true"></canvas>
+            <span>ガウス</span>
+          </button>
+        </div>
+
+        <!-- ノイズ調整スライダー -->
+        <div class="slider-row">
+          <label class="slider-label" for="noise-slider">
+            <span class="label-with-help">
+              ノイズ
+              <span class="help" tabindex="0" role="note" aria-label="ノイズの説明">
+                <span class="help-icon" aria-hidden="true">?</span>
+                <span class="help-bubble help-bubble--right">データ点の散らばり具合。大きいほど分類が難しくなり、過学習も起きやすくなります。</span>
+              </span>
+            </span>
+            <span class="slider-value" id="noise-value">0.10</span>
+          </label>
+          <input
+            type="range"
+            id="noise-slider"
+            min="0" max="0.5" step="0.05" value="0.1"
+          />
+        </div>
+      </section>
+
+      <!-- モデル設定 -->
+      <section class="control-section">
+        <h2 class="section-label">
+          <span class="section-index">02</span>
+          活性化関数
+          <span class="help" tabindex="0" role="note" aria-label="活性化関数の説明">
+            <span class="help-icon" aria-hidden="true">?</span>
+            <span class="help-bubble help-bubble--right">ニューロンの出力を曲げる関数。これが無いと層を何枚重ねても直線の境界しか引けません。</span>
+          </span>
+        </h2>
+        <div class="activation-group">
+          <button class="activation-btn" data-activation="relu">ReLU</button>
+          <button class="activation-btn is-active" data-activation="tanh">tanh</button>
+          <button class="activation-btn" data-activation="sigmoid">sigmoid</button>
+        </div>
+      </section>
+
+      <!-- 学習率 -->
+      <section class="control-section">
+        <h2 class="section-label">
+          <span class="section-index">03</span>
+          学習率
+          <span class="help" tabindex="0" role="note" aria-label="学習率の説明">
+            <span class="help-icon" aria-hidden="true">?</span>
+            <span class="help-bubble help-bubble--right">1回の更新で重みをどれだけ動かすか。大きいと速く学びますが発散しやすく、小さいと安定しますが遅くなります。</span>
+          </span>
+        </h2>
+        <div class="slider-row">
+          <label class="slider-label" for="lr-slider">
+            <span class="label-with-help">η (イータ)</span>
+            <span class="slider-value" id="lr-value">0.30</span>
+          </label>
+          <input
+            type="range"
+            id="lr-slider"
+            min="-3" max="0" step="0.01" value="-0.523"
+          />
+        </div>
+      </section>
+
+    </aside>
+
+    <!-- 中央: ネットワーク図 -->
+    <section class="network-panel panel" data-screen-label="ネットワーク図">
+
+      <div class="net-ctrl-bar">
+        <div class="net-ctrl-group">
+          <span class="net-ctrl-label">
+            隠れ層
+            <span class="help" tabindex="0" role="note" aria-label="隠れ層の説明">
+              <span class="help-icon" aria-hidden="true">?</span>
+              <span class="help-bubble help-bubble--right">入力と出力の間にある層。増やすほど複雑な境界を学べますが、学習は難しくなります。</span>
+            </span>
+          </span>
+          <button id="btn-layer-minus" class="stepper-btn" aria-label="隠れ層を削除">−</button>
+          <span id="layer-count-display" class="stepper-display">2 層</span>
+          <button id="btn-layer-plus" class="stepper-btn" aria-label="隠れ層を追加">+</button>
+        </div>
+        <div id="neuron-chips" class="neuron-chips"></div>
+      </div>
+
+      <div class="network-wrapper">
+        <canvas id="network-canvas"></canvas>
+      </div>
+      <p class="network-caption">
+        線の太さ＝重みの大きさ ／
+        <span class="cap-pos">オレンジ＝正</span>・<span class="cap-neg">青＝負</span>
+        ／ 円の中＝そのニューロンが見ている入力空間
+      </p>
+    </section>
+
+    <!-- 右: 決定境界 -->
+    <section class="canvas-panel panel" data-screen-label="決定境界">
+      <div class="output-header">
+        <h2 class="section-label">
+          決定境界
+          <span class="help" tabindex="0" role="note" aria-label="決定境界の説明">
+            <span class="help-icon" aria-hidden="true">?</span>
+            <span class="help-bubble help-bubble--right">ネットワークの判断地図。どの場所を青／オレンジと判断しているかを色で表示。点は学習データです。</span>
+          </span>
+        </h2>
+        <div class="legend">
+          <div class="legend-item">
+            <span class="legend-dot legend-dot--class0"></span>
+            <span class="legend-text">クラス 0</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot legend-dot--class1"></span>
+            <span class="legend-text">クラス 1</span>
+          </div>
+        </div>
+      </div>
+      <div class="canvas-wrapper">
+        <canvas id="main-canvas"></canvas>
+      </div>
+    </section>
+
+    <!-- 全幅: 損失チャート -->
+    <section class="loss-panel panel" data-screen-label="損失チャート">
+      <div class="loss-header">
+        <h2 class="section-label">
+          損失の推移
+          <span class="help" tabindex="0" role="note" aria-label="損失の推移の説明">
+            <span class="help-icon" aria-hidden="true">?</span>
+            <span class="help-bubble help-bubble--right">エポックごとの損失。2本の線が一緒に下がるのが理想的な学習です。</span>
+          </span>
+        </h2>
+        <div class="loss-legend">
+          <span class="loss-legend-item">
+            <span class="loss-chip loss-chip--train"></span>学習損失
+          </span>
+          <span class="loss-legend-item">
+            <span class="loss-chip loss-chip--test"></span>テスト損失
+          </span>
+        </div>
+      </div>
+      <canvas id="loss-canvas"></canvas>
+    </section>
+
+  </main>
+
+  <!-- ===== このアプリについて ===== -->
+  <section class="about" data-screen-label="解説セクション">
+    <div class="about-inner">
+      <h2 class="about-title">このアプリについて</h2>
+
+      <div class="about-block">
+        <span class="about-index">01</span>
+        <h3 class="about-heading">これは何？</h3>
+        <p class="about-text">
+          ニューラルネットワークは、ChatGPT・画像認識・音声認識など、現代のAIのほぼすべてを支えている仕組みです。
+          このアプリでは、その<strong>ごく小さな本物</strong>が「<span class="kw-blue">青</span>と<span class="kw-orange">オレンジ</span>の点の見分け方」をゼロから学んでいく様子を、リアルタイムで観察できます。
+          ライブラリは一切使わず、学習アルゴリズムそのものをJavaScriptで実装しています。
+        </p>
+      </div>
+
+      <div class="about-block">
+        <span class="about-index">02</span>
+        <h3 class="about-heading">「学習」では何が起きているの？</h3>
+        <p class="about-text">
+          最初、ネットワークの中身(<strong>重み</strong>と呼ばれるたくさんの数値)はランダムなので、判断もデタラメです。そこから——
+        </p>
+        <ol class="about-list">
+          <li>答え合わせをして「どれくらい間違えたか」を数値で測る(これが<strong>損失</strong>)</li>
+          <li>間違いが少し減る方向に、重みをほんの少しだけ動かす(<strong>勾配降下法</strong>)</li>
+          <li>これを何百回・何千回も繰り返す(1周が<strong>1エポック</strong>)</li>
+        </ol>
+        <p class="about-text">
+          誰も境界線の引き方を教えていないのに、データに合った境界がだんだん浮かび上がってきます。これが「機械学習」の正体です。
+        </p>
+      </div>
+
+      <div class="about-block">
+        <span class="about-index">03</span>
+        <h3 class="about-heading">画面の見方</h3>
+        <ul class="about-list">
+          <li><strong>中央の図</strong> — ネットワークの中身。円がニューロン、線が重み。線が太いほど影響が強く、<span class="kw-orange">オレンジの線はオレンジ側へ</span>、<span class="kw-blue">青の線は青側へ</span>判断を押します。円の中の模様は、そのニューロンが覚えた「見分けパターン」です。</li>
+          <li><strong>右の図</strong> — ネットワークの判断地図(決定境界)。すべての場所について「ここは青とオレンジのどちらの陣地か」を色で塗ったもの。学習が進むと境界の形が変わっていきます。</li>
+          <li><strong>下のグラフ</strong> — 間違い(損失)の推移。下がるほど賢くなっています。</li>
+        </ul>
+      </div>
+
+      <div class="about-block">
+        <span class="about-index">04</span>
+        <h3 class="about-heading">試してみよう</h3>
+        <ul class="about-list">
+          <li><strong>隠れ層を0にする</strong> → まっすぐな直線でしか分けられなくなります。層を重ねることの意味が一目で分かります。</li>
+          <li><strong>渦巻き + ReLU + 8ニューロン×2層</strong> → 最難関の渦巻きも、十分な構造があれば攻略できます。</li>
+          <li><strong>ノイズを0.5に上げる</strong> → 学習損失だけ下がってテスト損失が高止まりする「<strong>過学習</strong>」(暗記しすぎて応用が利かない状態)が観察できます。</li>
+          <li><strong>学習率を1.0にする</strong> → 一歩が大きすぎて学習が暴走する様子が見えます。逆に0.001だと遅すぎることも。</li>
+        </ul>
+      </div>
+
+      <div class="about-block">
+        <span class="about-index">05</span>
+        <h3 class="about-heading">これを理解すると？</h3>
+        <p class="about-text">
+          ChatGPTも自動運転も、原理はこの画面で起きていることと同じです。違いはニューロンの数(このアプリは数十個、最新のAIは数千億個)と、学習するデータの量だけ。
+          つまりAIは魔法でも意識でもなく、「<strong>間違いを測って、少しずつ減らす計算</strong>」の膨大な積み重ねです。
+        </p>
+        <p class="about-text">
+          この感覚があると、AIの得意・不得意——「データにないものは学べない」「ノイズまで暗記してしまうことがある」「設定次第で性能が大きく変わる」——を正しく見積もれるようになります。
+          AIを使う側に回るにも、作る側に進むにも、ここがいちばん最初の一歩です。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== トースト通知 ===== -->
+  <div id="toast" class="toast" role="alert" aria-live="assertive"></div>
+
+  <!-- ===== フッター ===== -->
+  <footer class="app-footer">
+    <p class="footer-copy">© 2026 Dulal Denislam</p>
+  </footer>
+
+  <!-- スクリプト読み込み順: theme.js → nn.js → data.js → netview.js → lossview.js → main.js -->
+  <script src="js/theme.js"></script>
+  <script src="js/nn.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/netview.js"></script>
+  <script src="js/lossview.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
