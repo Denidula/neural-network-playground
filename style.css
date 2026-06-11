@@ -238,7 +238,7 @@ body {
   padding: 0 var(--gutter);
   border-bottom: 1px solid var(--line);
   flex-shrink: 0;
-  overflow-x: auto;
+  /* overflow-x: auto は付けない — ツールチップの吹き出しがクリップされるため */
 }
 
 .readout {
@@ -961,6 +961,19 @@ input[type="range"]::-moz-range-thumb {
 
 .help-bubble--right::after { left: 14px; }
 
+/* 画面上端付近 (読み出しストリップなど) では下向きに開く */
+.help-bubble--down {
+  bottom: auto;
+  top: calc(100% + 9px);
+}
+
+.help-bubble--down::after {
+  top: auto;
+  bottom: 100%;
+  border: 5px solid transparent;
+  border-bottom-color: #16171B;
+}
+
 .help:hover .help-bubble,
 .help:focus .help-bubble,
 .help:focus-within .help-bubble {
@@ -1017,13 +1030,21 @@ input[type="range"]::-moz-range-thumb {
     padding-top: 20px;
   }
 
-  .readout {
-    min-width: 0;
-    flex: 1;
-    padding-right: 20px;
+  /* 横スクロールはツールチップを切るので、狭い画面では2×2グリッドに */
+  .readout-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
 
-  .readout + .readout { padding-left: 20px; }
+  .readout {
+    min-width: 0;
+    padding: 12px 16px 12px 0;
+  }
+
+  .readout + .readout {
+    border-left: none;
+    padding-left: 0;
+  }
 
   .readout-value { font-size: 1.3rem; }
   .readout--arch .readout-value { font-size: 0.95rem; line-height: 2; }
