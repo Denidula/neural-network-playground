@@ -142,19 +142,15 @@ body {
 }
 
 /* ---- トランスポート (リセット / 1ステップ / 再生) ----
- * 読み出しストリップの第3カラム = 決定境界の真上に左右固定。
- * 構成表示の幅が変わっても位置は動かない。 */
+ * 読み出しストリップ (.readout-bar) の右端に配置する。 */
 .transport {
-  grid-column: 3;
   display: flex;
   align-items: center;
-  align-self: center; /* 帯の縦中央 (構成と同じ高さ) */
   gap: 8px;
-}
-
-/* カラム幅いっぱいに3ボタンを等幅で並べる */
-.transport .btn {
-  flex: 1;
+  flex-shrink: 0;
+  margin-left: auto;   /* 右端寄せ */
+  align-self: center;  /* 帯の縦中央 */
+  padding-left: 24px;
 }
 
 .btn {
@@ -240,24 +236,13 @@ body {
 /* ----------------------------------------------------------------
  * 読み出しストリップ — 計器盤の数値表示列
  * ---------------------------------------------------------------- */
-/* メイングリッド (.app-main) と同じカラム定義にすることで、
- * 第3カラム (トランスポート) が下の決定境界と常に左右一致する。
- * overflow は付けない — ツールチップの吹き出しがクリップされるため */
 .readout-bar {
-  display: grid;
-  grid-template-columns: var(--rail-w) minmax(0, 1fr) minmax(300px, 380px);
-  column-gap: 48px;
+  display: flex;
+  align-items: stretch;
   padding: 0 var(--gutter);
   border-bottom: 1px solid var(--line);
   flex-shrink: 0;
-}
-
-/* 数値読み出し群 — カラム1〜2 をまたぐ */
-.readouts {
-  grid-column: 1 / 3;
-  display: flex;
-  align-items: stretch;
-  min-width: 0;
+  /* overflow-x: auto は付けない — ツールチップの吹き出しがクリップされるため */
 }
 
 .readout {
@@ -1020,20 +1005,6 @@ input[type="range"]::-moz-range-thumb {
     row-gap: 36px;
   }
 
-  /* 第3カラムが無くなるので、読み出しの下の行に全幅で並べる */
-  .readout-bar {
-    grid-template-columns: 1fr;
-  }
-
-  .readouts {
-    grid-column: 1;
-  }
-
-  .transport {
-    grid-column: 1;
-    padding-bottom: 16px;
-  }
-
   .canvas-panel {
     max-width: 440px;
     justify-self: center;
@@ -1064,7 +1035,7 @@ input[type="range"]::-moz-range-thumb {
   }
 
   /* 横スクロールはツールチップを切るので、狭い画面では2×2グリッドに */
-  .readouts {
+  .readout-bar {
     display: grid;
     grid-template-columns: 1fr 1fr;
   }
@@ -1077,6 +1048,17 @@ input[type="range"]::-moz-range-thumb {
   .readout + .readout {
     border-left: none;
     padding-left: 0;
+  }
+
+  /* トランスポートは読み出しの下に全幅で */
+  .readout-bar .transport {
+    grid-column: 1 / -1;
+    margin-left: 0;
+    padding: 2px 0 14px;
+  }
+
+  .readout-bar .transport .btn {
+    flex: 1;
   }
 
   .readout-value { font-size: 1.3rem; }
