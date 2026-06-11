@@ -141,12 +141,16 @@ body {
   text-overflow: ellipsis;
 }
 
-/* ---- トランスポート (リセット / 1ステップ / 再生) ---- */
+/* ---- トランスポート (リセット / 1ステップ / 再生) ----
+ * 読み出しストリップ (.readout-bar) の右端に配置する。 */
 .transport {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+  margin-left: auto;   /* 右端寄せ */
+  align-self: center;  /* 帯の縦中央 */
+  padding-left: 24px;
 }
 
 .btn {
@@ -1044,6 +1048,17 @@ input[type="range"]::-moz-range-thumb {
   .readout + .readout {
     border-left: none;
     padding-left: 0;
+  }
+
+  /* トランスポートは読み出しの下に全幅で */
+  .readout-bar .transport {
+    grid-column: 1 / -1;
+    margin-left: 0;
+    padding: 2px 0 14px;
+  }
+
+  .readout-bar .transport .btn {
+    flex: 1;
   }
 
   .readout-value { font-size: 1.3rem; }

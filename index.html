@@ -26,22 +26,6 @@
       </span>
       <h1 class="app-title">Neural Network Playground</h1>
     </div>
-
-    <div class="transport">
-      <button id="btn-reset" class="btn btn-ghost" title="ネットワークをリセット">
-        <span class="btn-icon" aria-hidden="true">↺</span>
-        <span class="btn-text">リセット</span>
-      </button>
-      <button id="btn-step" class="btn btn-ghost" title="1エポックだけ進む">
-        <span class="btn-icon" aria-hidden="true">⏭</span>
-        <span class="btn-text">1ステップ</span>
-      </button>
-      <button id="btn-playpause" class="btn btn-primary" title="再生 / 一時停止">
-        <span class="run-dot" aria-hidden="true"></span>
-        <span class="btn-icon" aria-hidden="true">▶</span>
-        <span class="btn-text">再生</span>
-      </button>
-    </div>
   </header>
 
   <!-- ===== 読み出しストリップ ===== -->
@@ -82,6 +66,23 @@
     <div class="readout readout--arch">
       <span class="readout-label microlabel">構成</span>
       <span class="readout-value" id="stat-arch">2 · 4 · 4 · 1</span>
+    </div>
+
+    <!-- トランスポート (リセット / 1ステップ / 再生) — 右端に配置 -->
+    <div class="transport">
+      <button id="btn-reset" class="btn btn-ghost" title="ネットワークをリセット">
+        <span class="btn-icon" aria-hidden="true">↺</span>
+        <span class="btn-text">リセット</span>
+      </button>
+      <button id="btn-step" class="btn btn-ghost" title="1エポックだけ進む">
+        <span class="btn-icon" aria-hidden="true">⏭</span>
+        <span class="btn-text">1ステップ</span>
+      </button>
+      <button id="btn-playpause" class="btn btn-primary" title="再生 / 一時停止">
+        <span class="run-dot" aria-hidden="true"></span>
+        <span class="btn-icon" aria-hidden="true">▶</span>
+        <span class="btn-text">再生</span>
+      </button>
     </div>
   </div>
 
