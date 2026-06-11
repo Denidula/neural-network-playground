@@ -142,15 +142,20 @@ body {
 }
 
 /* ---- トランスポート (リセット / 1ステップ / 再生) ----
- * 読み出しストリップ (.readout-bar) の右端に配置する。 */
+ * app-main のグリッドアイテムとして決定境界カラムの真上に固定。
+ * (読み出しストリップ内に置くと構成表示の幅で左右に動いてしまうため) */
 .transport {
+  grid-area: transport;
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-shrink: 0;
-  margin-left: auto;   /* 右端寄せ */
-  align-self: center;  /* 帯の縦中央 */
-  padding-left: 24px;
+  padding-top: 4px;       /* 左レール先頭セクションと天面を揃える */
+  margin-bottom: 14px;    /* 下の「決定境界」ヘッダーとの間隔 */
+}
+
+/* カラム幅いっぱいに3ボタンを等幅で並べる */
+.transport .btn {
+  flex: 1;
 }
 
 .btn {
@@ -291,8 +296,10 @@ body {
   flex: 1;
   display: grid;
   grid-template-columns: var(--rail-w) minmax(0, 1fr) minmax(300px, 380px);
-  grid-template-rows: minmax(0, 1fr) auto;
+  /* 行1 = トランスポート (決定境界カラムの上に固定) */
+  grid-template-rows: auto minmax(0, 1fr) auto;
   grid-template-areas:
+    "rail network transport"
     "rail network output"
     "loss loss    loss";
   column-gap: 48px;
@@ -1000,9 +1007,19 @@ input[type="range"]::-moz-range-thumb {
     grid-template-columns: var(--rail-w) minmax(0, 1fr);
     grid-template-areas:
       "rail network"
+      "rail transport"
       "rail output"
       "loss loss";
     row-gap: 36px;
+  }
+
+  .transport {
+    max-width: 440px;
+    width: 100%;
+    justify-self: center;
+    align-self: end;
+    margin-bottom: 0; /* 間隔は row-gap に任せる */
+    padding-top: 0;
   }
 
   .canvas-panel {
@@ -1025,13 +1042,22 @@ input[type="range"]::-moz-range-thumb {
 
   .app-main {
     grid-template-columns: 1fr;
+    /* 操作ボタンは最上部 (読み出しストリップの直下) に */
     grid-template-areas:
+      "transport"
       "rail"
       "network"
       "output"
       "loss";
     row-gap: 32px;
     padding-top: 20px;
+  }
+
+  .transport {
+    max-width: none;
+    justify-self: stretch;
+    margin-bottom: 0;
+    padding-top: 0;
   }
 
   /* 横スクロールはツールチップを切るので、狭い画面では2×2グリッドに */
@@ -1048,17 +1074,6 @@ input[type="range"]::-moz-range-thumb {
   .readout + .readout {
     border-left: none;
     padding-left: 0;
-  }
-
-  /* トランスポートは読み出しの下に全幅で */
-  .readout-bar .transport {
-    grid-column: 1 / -1;
-    margin-left: 0;
-    padding: 2px 0 14px;
-  }
-
-  .readout-bar .transport .btn {
-    flex: 1;
   }
 
   .readout-value { font-size: 1.3rem; }

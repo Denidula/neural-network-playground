@@ -67,9 +67,13 @@
       <span class="readout-label microlabel">構成</span>
       <span class="readout-value" id="stat-arch">2 · 4 · 4 · 1</span>
     </div>
+  </div>
 
-    <!-- トランスポート (リセット / 1ステップ / 再生) — 右端に配置 -->
-    <div class="transport">
+  <!-- ===== メインレイアウト ===== -->
+  <main class="app-main">
+
+    <!-- トランスポート (リセット / 1ステップ / 再生) — 決定境界カラムの真上に固定 -->
+    <div class="transport" data-screen-label="トランスポート">
       <button id="btn-reset" class="btn btn-ghost" title="ネットワークをリセット">
         <span class="btn-icon" aria-hidden="true">↺</span>
         <span class="btn-text">リセット</span>
@@ -84,10 +88,6 @@
         <span class="btn-text">再生</span>
       </button>
     </div>
-  </div>
-
-  <!-- ===== メインレイアウト ===== -->
-  <main class="app-main">
 
     <!-- 左レール: 設定 -->
     <aside class="control-panel panel" data-screen-label="設定レール">
